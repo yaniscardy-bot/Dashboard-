@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>STATION — Tableau de bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="scanline-overlay" aria-hidden="true"></div>
+<div class="sweep-overlay" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="brand__mark">◈</span>
+    <span class="brand__name">STATION</span>
+    <span class="brand__sub">CONTRÔLE PERSONNEL</span>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Navigation principale">
+    <button class="tab active" data-tab="dashboard" role="tab" aria-selected="true">Tableau de bord</button>
+    <button class="tab" data-tab="calendar" role="tab" aria-selected="false">Calendrier</button>
+    <button class="tab" data-tab="history" role="tab" aria-selected="false">Historique</button>
+    <button class="tab" data-tab="settings" role="tab" aria-selected="false">Réglages</button>
+  </nav>
+
+  <div class="topbar__status">
+    <button class="sync-led" id="syncLed" type="button" title="Statut de synchronisation — cliquer pour forcer une sauvegarde">
+      <span class="led-dot" id="syncDot"></span>
+      <span class="led-label" id="syncLabel">SYNC OK</span>
+    </button>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+
+  <button class="tabs-toggle" id="tabsToggle" type="button" aria-label="Ouvrir la navigation">☰</button>
+</header>
+
+<main id="app">
+
+  <!-- ===================== TABLEAU DE BORD ===================== -->
+  <section class="tab-panel active" id="panel-dashboard" role="tabpanel">
+
+    <div class="day-nav module-corner">
+      <button id="prevDay" class="navbtn" title="Jour précédent">◀</button>
+      <div class="day-nav__info">
+        <div class="day-nav__date" id="currentDateLabel">—</div>
+        <div class="day-nav__sub" id="currentDateRelative">—</div>
+      </div>
+      <button id="todayBtn" class="pill-btn" type="button">Aujourd'hui</button>
+      <button id="nextDay" class="navbtn" title="Jour suivant">▶</button>
+    </div>
+
+    <div class="grid-dashboard">
+
+      <div class="panel panel--trend module-corner span-2">
+        <div class="panel__header">
+          <h2>COURBE — 30 JOURS</h2>
+          <div class="trend-badge" id="trendBadge">
+            <span id="trendArrow">—</span>
+            <span id="trendValue">0%</span>
+          </div>
+        </div>
+        <div class="trend-chart-wrap">
+          <svg id="trendChart" class="trend-chart" viewBox="0 0 620 170" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="trend-legend">
+          <span><i class="dot dot--amber"></i> Score du jour</span>
+          <span><i class="dot dot--cyan"></i> Moyenne 7 jours</span>
+        </div>
+      </div>
+
+      <div class="panel panel--score module-corner">
+        <div class="panel__header"><h2>SCORE DU JOUR</h2></div>
+        <div class="score-ring-wrap">
+          <svg viewBox="0 0 200 200" class="score-ring">
+            <circle class="ring-bg" cx="100" cy="100" r="86"></circle>
+            <circle class="ring-fg" id="scoreRingFg" cx="100" cy="100" r="86"></circle>
+          </svg>
+          <div class="score-ring__value">
+            <span id="scoreValue">0</span><span class="pct">%</span>
+          </div>
+        </div>
+        <div class="score-sub" id="scoreSub">0 / 0 objectifs atteints</div>
+      </div>
+
+      <div class="panel panel--habits module-corner">
+        <div class="panel__header">
+          <h2>HABITUDES</h2>
+          <span class="count-badge" id="habitsCount">0/0</span>
+        </div>
+        <div class="habits-grid" id="habitsGrid"></div>
+        <p class="empty-hint" id="habitsEmptyHint" hidden>Aucune habitude définie. Ajoutez-en dans Réglages.</p>
+      </div>
+
+      <div class="panel panel--metrics module-corner">
+        <div class="panel__header">
+          <h2>MÉTRIQUES</h2>
+          <span class="count-badge" id="metricsCount">0/0</span>
+        </div>
+        <div class="metrics-grid" id="metricsGrid"></div>
+        <p class="empty-hint" id="metricsEmptyHint" hidden>Aucune métrique définie. Ajoutez-en dans Réglages.</p>
+      </div>
+
+      <div class="panel panel--tasks module-corner">
+        <div class="panel__header"><h2>TÂCHES DU JOUR</h2></div>
+        <form id="taskForm" class="inline-form">
+          <input type="text" id="taskInput" placeholder="Nouvelle tâche…" autocomplete="off" maxlength="120">
+          <button type="submit" class="pill-btn">+</button>
+        </form>
+        <ul class="task-list" id="taskList"></ul>
+      </div>
+
+      <div class="panel panel--goals module-corner">
+        <div class="panel__header"><h2>OBJECTIFS LONG TERME</h2></div>
+        <form id="goalForm" class="inline-form">
+          <input type="text" id="goalInput" placeholder="Nouvel objectif…" autocomplete="off" maxlength="140">
+          <button type="submit" class="pill-btn">+</button>
+        </form>
+        <ul class="goal-list" id="goalList"></ul>
+      </div>
+
+      <div class="panel panel--notes module-corner span-2">
+        <div class="panel__header">
+          <h2>NOTES</h2>
+          <span class="save-indicator" id="notesSaveIndicator"></span>
+        </div>
+        <textarea id="notesArea" placeholder="Notes libres du jour…" maxlength="4000"></textarea>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== CALENDRIER ===================== -->
+  <section class="tab-panel" id="panel-calendar" role="tabpanel">
+    <div class="cal-header module-corner">
+      <button id="prevMonth" class="navbtn">◀</button>
+      <div class="cal-title" id="calTitle">—</div>
+      <button id="nextMonth" class="navbtn">▶</button>
+      <div class="cal-legend">
+        <span class="cal-legend__label">SCORE</span>
+        <i class="heat heat-0"></i><i class="heat heat-1"></i><i class="heat heat-2"></i><i class="heat heat-3"></i><i class="heat heat-4"></i>
+      </div>
+    </div>
+    <div class="cal-weekdays">
+      <span>LUN</span><span>MAR</span><span>MER</span><span>JEU</span><span>VEN</span><span>SAM</span><span>DIM</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </section>
+
+  <!-- ===================== HISTORIQUE ===================== -->
+  <section class="tab-panel" id="panel-history" role="tabpanel">
+    <div class="history-toolbar module-corner">
+      <input type="text" id="historySearch" placeholder="Rechercher : date, note, tâche…" autocomplete="off">
+      <div class="history-toolbar__actions">
+        <span class="history-count" id="historyCount">0 jour(s)</span>
+        <button id="exportBtn" class="pill-btn pill-btn--accent" type="button">Exporter JSON</button>
+      </div>
+    </div>
+    <div class="history-table-wrap module-corner">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Score</th>
+            <th>Habitudes</th>
+            <th>Métriques</th>
+            <th>Tâches</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+      <p class="empty-hint" id="historyEmptyHint" hidden>Aucun jour enregistré pour le moment.</p>
+    </div>
+  </section>
+
+  <!-- ===================== RÉGLAGES ===================== -->
+  <section class="tab-panel" id="panel-settings" role="tabpanel">
+    <div class="settings-grid">
+
+      <div class="panel module-corner">
+        <div class="panel__header"><h2>HABITUDES — DÉFINITIONS</h2></div>
+        <ul class="def-list" id="habitsDefList"></ul>
+        <form id="habitDefForm" class="inline-form-multi">
+          <input id="habitDefIcon" maxlength="2" placeholder="◆" class="icon-input" title="Icône (1-2 caractères)">
+          <input id="habitDefLabel" placeholder="Nom de l'habitude" required>
+          <button type="submit" class="pill-btn">Ajouter</button>
+        </form>
+      </div>
+
+      <div class="panel module-corner">
+        <div class="panel__header"><h2>MÉTRIQUES — DÉFINITIONS</h2></div>
+        <ul class="def-list" id="metricsDefList"></ul>
+        <form id="metricDefForm" class="inline-form-multi">
+          <input id="metricDefIcon" maxlength="2" placeholder="◆" class="icon-input" title="Icône (1-2 caractères)">
+          <input id="metricDefLabel" placeholder="Nom" required>
+          <input id="metricDefUnit" placeholder="unité" class="unit-input">
+          <input id="metricDefTarget" type="number" step="0.1" placeholder="Cible" required>
+          <select id="metricDefDir" title="Sens de la cible">
+            <option value="max">≥ cible</option>
+            <option value="min">≤ cible</option>
+          </select>
+          <button type="submit" class="pill-btn">Ajouter</button>
+        </form>
+      </div>
+
+      <div class="panel module-corner">
+        <div class="panel__header"><h2>CATÉGORIES D'ÉVÉNEMENTS</h2></div>
+        <ul class="def-list" id="categoryDefList"></ul>
+        <form id="categoryDefForm" class="inline-form-multi">
+          <input id="categoryDefLabel" placeholder="Nom de la catégorie" required>
+          <input id="categoryDefColor" type="color" value="#4FC3D9">
+          <button type="submit" class="pill-btn">Ajouter</button>
+        </form>
+      </div>
+
+      <div class="panel module-corner panel--danger">
+        <div class="panel__header"><h2>DONNÉES &amp; DIAGNOSTIC</h2></div>
+        <div class="settings-actions">
+          <button id="exportBtn2" class="pill-btn" type="button">Exporter toutes les données (JSON)</button>
+          <label class="pill-btn file-btn">Importer un fichier JSON
+            <input type="file" id="importFile" accept="application/json" hidden>
+          </label>
+          <button id="resetBtn" class="pill-btn pill-btn--danger" type="button">Réinitialiser toutes les données</button>
+        </div>
+        <div class="diag-box" id="diagBox">Diagnostic window.storage : vérification…</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<div id="toastContainer" class="toast-container" aria-live="polite"></div>
+<div id="modalRoot"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
