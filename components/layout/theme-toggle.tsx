@@ -1,15 +1,21 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const noopSubscribe = () => () => {};
+
+/** true seulement après l'hydratation client — évite le flash sun/moon dû au thème inconnu côté serveur, sans setState dans un effect. */
+function useMounted() {
+  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+}
+
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
 
   function toggle() {
     const next = resolvedTheme === "dark" ? "light" : "dark";
