@@ -60,3 +60,5 @@ hooks/*                React Query + mutations optimistes
 stores/ui-store.ts     état UI (Zustand)
 supabase/*              schema.sql, policies.sql, README de setup
 ```
+
+<!-- vercel-deploy-trigger -->
