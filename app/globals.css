@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* =========================================================
+   Design tokens — voir DESIGN.md pour la justification
+   ========================================================= */
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 4%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 4%;
+
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 6% 10%;
+
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 6% 10%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 152 60% 32%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 38 92% 42%;
+  --warning-foreground: 0 0% 100%;
+
+  --border: 240 6% 90%;
+  --input: 240 6% 88%;
+  --ring: 243 75% 59%;
+
+  /* palette catégorielle — habitudes/métriques/séries de graphes,
+     mêmes valeurs en clair et sombre (lisible sur les deux fonds) */
+  --chart-rose: 350 78% 56%;
+  --chart-orange: 24 88% 54%;
+  --chart-amber: 40 90% 50%;
+  --chart-lime: 82 55% 42%;
+  --chart-emerald: 152 58% 38%;
+  --chart-cyan: 190 75% 42%;
+  --chart-blue: 217 82% 56%;
+  --chart-violet: 262 72% 58%;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 16px 40px -12px rgb(0 0 0 / 0.18), 0 4px 12px -4px rgb(0 0 0 / 0.08);
+
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+}
+
+.dark {
+  --background: 240 10% 6%;
+  --foreground: 240 5% 96%;
+
+  --card: 240 9% 8%;
+  --card-foreground: 240 5% 96%;
+  --popover: 240 9% 9%;
+  --popover-foreground: 240 5% 96%;
+
+  --primary: 243 85% 71%;
+  --primary-foreground: 240 10% 6%;
+
+  --secondary: 240 6% 14%;
+  --secondary-foreground: 240 5% 96%;
+
+  --muted: 240 6% 14%;
+  --muted-foreground: 240 4% 64%;
+
+  --accent: 240 6% 16%;
+  --accent-foreground: 240 5% 96%;
+
+  --destructive: 0 70% 63%;
+  --destructive-foreground: 240 10% 6%;
+
+  --success: 152 50% 52%;
+  --success-foreground: 240 10% 6%;
+
+  --warning: 38 92% 60%;
+  --warning-foreground: 240 10% 6%;
+
+  --border: 240 6% 18%;
+  --input: 240 6% 20%;
+  --ring: 243 85% 71%;
+
+  /* en sombre, l'ombre porte peu : l'élévation passe par la bordure
+     (voir DESIGN.md) — ces tokens restent définis pour les popovers/modales */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.5), 0 2px 6px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 4px 12px -4px rgb(0 0 0 / 0.4);
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-chart-rose: hsl(var(--chart-rose));
+  --color-chart-orange: hsl(var(--chart-orange));
+  --color-chart-amber: hsl(var(--chart-amber));
+  --color-chart-lime: hsl(var(--chart-lime));
+  --color-chart-emerald: hsl(var(--chart-emerald));
+  --color-chart-cyan: hsl(var(--chart-cyan));
+  --color-chart-blue: hsl(var(--chart-blue));
+  --color-chart-violet: hsl(var(--chart-violet));
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/* Fallback pour les navigateurs sans View Transitions API :
+   la bascule de thème reste animée via une simple transition CSS. */
+@media not (prefers-reduced-motion: reduce) {
+  html:not([data-vt-active]) body,
+  html:not([data-vt-active]) body * {
+    transition: background-color var(--duration-slow) ease, border-color var(--duration-slow) ease;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-slow);
+}
