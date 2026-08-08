@@ -1,15 +1,38 @@
-import { TrendingUp } from "lucide-react";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { getQueryClient } from "@/lib/react-query/get-query-client";
+import { createClient } from "@/lib/supabase/server";
+import { fetchHabits } from "@/lib/queries/habits";
+import { fetchMetrics } from "@/lib/queries/metrics";
+import { fetchHabitLogsInRange, fetchMetricLogsInRange } from "@/lib/queries/logs";
+import { habitLogsKey, metricLogsKey } from "@/hooks/useDayLogs";
+import { addDays, toDateKey } from "@/lib/calculations/date-utils";
+import { TrendsContent } from "@/components/composed/trends-content";
 
-export default function TrendsPage() {
+const DEFAULT_PERIOD_DAYS = 30;
+
+export default async function TrendsPage() {
+  const supabase = await createClient();
+  const queryClient = getQueryClient();
+
+  const today = toDateKey(new Date());
+  const from = toDateKey(addDays(new Date(), -(DEFAULT_PERIOD_DAYS - 1)));
+
+  await Promise.all([
+    queryClient.prefetchQuery({ queryKey: ["habits"], queryFn: () => fetchHabits(supabase) }),
+    queryClient.prefetchQuery({ queryKey: ["metrics"], queryFn: () => fetchMetrics(supabase) }),
+    queryClient.prefetchQuery({
+      queryKey: habitLogsKey(from, today),
+      queryFn: () => fetchHabitLogsInRange(supabase, from, today),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: metricLogsKey(from, today),
+      queryFn: () => fetchMetricLogsInRange(supabase, from, today),
+    }),
+  ]);
+
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-3 py-24 text-center">
-      <TrendingUp className="size-10 text-muted-foreground" />
-      <h1 className="font-sans text-lg font-semibold">Tendances — à venir</h1>
-      <p className="max-w-sm text-sm text-muted-foreground">
-        Les courbes 7/30/90 jours par habitude et métrique arrivent dans la prochaine itération. La logique de
-        moyenne glissante et de tendance (<code className="font-mono text-xs">lib/calculations</code>) est déjà
-        écrite et testée — il ne reste que le graphe Recharts à brancher dessus.
-      </p>
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <TrendsContent />
+    </HydrationBoundary>
   );
 }

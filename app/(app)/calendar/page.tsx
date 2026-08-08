@@ -1,14 +1,37 @@
-import { CalendarDays } from "lucide-react";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { getQueryClient } from "@/lib/react-query/get-query-client";
+import { createClient } from "@/lib/supabase/server";
+import { fetchHabits } from "@/lib/queries/habits";
+import { fetchMetrics } from "@/lib/queries/metrics";
+import { fetchHabitLogsInRange, fetchMetricLogsInRange } from "@/lib/queries/logs";
+import { habitLogsKey, metricLogsKey } from "@/hooks/useDayLogs";
+import { toDateKey } from "@/lib/calculations/date-utils";
+import { CalendarContent } from "@/components/composed/calendar-content";
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
+  const supabase = await createClient();
+  const queryClient = getQueryClient();
+
+  const today = new Date();
+  const from = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`;
+  const to = toDateKey(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+
+  await Promise.all([
+    queryClient.prefetchQuery({ queryKey: ["habits"], queryFn: () => fetchHabits(supabase) }),
+    queryClient.prefetchQuery({ queryKey: ["metrics"], queryFn: () => fetchMetrics(supabase) }),
+    queryClient.prefetchQuery({
+      queryKey: habitLogsKey(from, to),
+      queryFn: () => fetchHabitLogsInRange(supabase, from, to),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: metricLogsKey(from, to),
+      queryFn: () => fetchMetricLogsInRange(supabase, from, to),
+    }),
+  ]);
+
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-3 py-24 text-center">
-      <CalendarDays className="size-10 text-muted-foreground" />
-      <h1 className="font-sans text-lg font-semibold">Calendrier — à venir</h1>
-      <p className="max-w-sm text-sm text-muted-foreground">
-        La vue mensuelle avec heatmap de complétion arrive dans la prochaine itération (Phase 3 du plan). Le
-        tableau de bord et l&apos;historique des habitudes/métriques sont déjà fonctionnels.
-      </p>
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <CalendarContent />
+    </HydrationBoundary>
   );
 }

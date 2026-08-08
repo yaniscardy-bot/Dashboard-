@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeDayScore } from "./score";
+import { computeDayScore, computeScoreSeries } from "./score";
 import type { Habit, HabitLog, Metric, MetricLog } from "@/types/domain";
 
 function habit(overrides: Partial<Habit> = {}): Habit {
@@ -116,5 +116,23 @@ describe("computeDayScore", () => {
       metricLogsForDay: [],
     });
     expect(result).toEqual({ done: 0, total: 1, score: 0 });
+  });
+});
+
+describe("computeScoreSeries", () => {
+  it("produces one point per day in the range, flagging days with data", () => {
+    const series = computeScoreSeries({
+      habits: [habit()],
+      metrics: [],
+      habitLogs: [habitLog({ logDate: "2026-01-02" })],
+      metricLogs: [],
+      from: "2026-01-01",
+      to: "2026-01-03",
+    });
+    expect(series).toEqual([
+      { date: "2026-01-01", score: 0, hasData: false },
+      { date: "2026-01-02", score: 100, hasData: true },
+      { date: "2026-01-03", score: 0, hasData: false },
+    ]);
   });
 });

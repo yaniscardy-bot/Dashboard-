@@ -36,15 +36,15 @@ variables d'environnement) en suivant `supabase/README.md`.
 Fonctionnel de bout en bout : authentification par lien magique, CRUD
 habitudes/métriques, tableau de bord du jour avec anneau de score,
 navigation par jour (clavier ← →), mutations optimistes, export JSON/CSV,
-thème clair/sombre animé.
+thème clair/sombre animé, calendrier mensuel avec heatmap de complétion,
+historique virtualisé et cherchable (365 jours), tendances 7/30/90 jours
+(Recharts) avec moyenne glissante 7j et badge de tendance.
 
-Pas encore construit (voir le plan d'architecture pour le détail des
-phases suivantes) : vue calendrier avec heatmap, liste d'historique
-virtualisée, graphes de tendance Recharts, palette de commandes ⌘K. Les
-routes correspondantes existent déjà (`/calendar`, `/history`, `/trends`)
-avec un état "à venir" plutôt qu'une 404, et la logique de calcul
-(moyennes glissantes, tendance) est déjà écrite et testée dans
-`lib/calculations/` — il ne reste que l'UI à brancher dessus.
+Pas encore construit (voir le plan d'architecture pour le détail) :
+édition groupée d'un jour directement depuis le calendrier (actuellement,
+cliquer un jour ouvre le tableau de bord sur ce jour-là, ce qui couvre le
+même besoin sans Sheet dédiée), palette de commandes ⌘K, raccourcis
+clavier étendus, sous-échantillonnage des graphes au-delà de 90 jours.
 
 ## Structure
 
